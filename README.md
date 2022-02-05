@@ -11,7 +11,7 @@ poetry install && poetry run pytest
 ## Start jupyter notebook
 
 ```console
-poetry run jupyter notebook
+poetry run jupyter notebook two_clusters_kuramoto
 ```
 
 ## Run some script
