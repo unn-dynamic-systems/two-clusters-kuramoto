@@ -1,5 +1,6 @@
 import numpy as np
 import math as mt
+import pickle
 from numpy.linalg import eig as get_eigen_vaues_from_M
 
 # Remove it if you are installed our module already
@@ -8,28 +9,26 @@ package_path = os.path.normpath(os.path.join(cwd, "..", "..", ".."))
 import sys; sys.path.append(package_path)
 
 from rside import R_SIDES
+from config import Config
 
 # Every import of our library should looks like this
 from calculation import limit_cycles
 
 def main():
-    h_m = 1e-1
-    N, Mass, Alpha, Omega = 6, 3 - h_m, 1.2, 1.3
-
-    T0 = 4.01739166e+00
-    IC0 = np.array([0, 4.00489756e+00, 6.83138901e-01, 2.81285526e+00,
-                   6.83138901e-01, 2.81285526e+00, 0, 4.00489756e+00,
-                   0, 4.00489756e+00, 6.83138901e-01, 2.81285526e+00])
+    H_M = Config.H_M
+    N, Mass, Alpha, Omega = Config.N, Config.Mass, Config.Alpha, Config.Omega
+    T0 = Config.T0
+    IC0 = Config.IC0
 
     assert IC0[0] == 0 # Main Convention
 
     IC, T = IC0, T0
     iteration = 0
     while True:
-        Mass += h_m
         args_orig = (N, Mass, Alpha, Omega)
         args_linear = (N, Mass, Alpha)
 
+        print("System args")
         print(args_orig)
 
         T, IC = limit_cycles.find_limit_cycle(R_SIDES.coupled_pendulums_rs, args_orig, IC, T, phase_period=2 * mt.pi)
@@ -44,9 +43,16 @@ def main():
                                                IC, T,
                                                args_linear, args_orig)
 
-        e, _ = get_eigen_vaues_from_M(M)
+        E, _ = get_eigen_vaues_from_M(M)
         print("Eigen values of monogrommy matrix")
-        print(e)
+        print(E)
+
+        with open(f'{Config.data_storage}/{iteration}.pickle', 'wb') as f:
+            pickle.dump(args_orig, f)
+            pickle.dump(T, f); pickle.dump(IC, f)
+            pickle.dump(M, f); pickle.dump(E, f)
+
+        Mass += H_M
         iteration += 1
         if iteration == 10:
             break
