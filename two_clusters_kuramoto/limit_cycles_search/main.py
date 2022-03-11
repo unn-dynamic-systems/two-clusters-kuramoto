@@ -1,59 +1,130 @@
-import numpy as np
-import math as mt
-import pickle
-from numpy.linalg import eig as get_eigen_vaues_from_M
+import time
+from multiprocessing import Pool, cpu_count, Value, Process
 
-# Remove it if you are installed our module already
-import os; cwd = os.path.dirname(os.path.abspath(__file__))
-package_path = os.path.normpath(os.path.join(cwd, "..", "..", ".."))
-import sys; sys.path.append(package_path)
-
-from rside import R_SIDES
+from py import process
 from config import Config
+from existance_zones.existance_zones import M as M_function
+from param_update_politics import Politics
+from calc_line import calcline
+import pickle
+from clog import log
 
-# Every import of our library should looks like this
-from calculation import limit_cycles
-from existance_zones import M
 
+def spawn_horizontal_lines(filepath, is_over, pool):
+    while True:
+        try:
+            open(filepath).close()
+            break
+        except FileNotFoundError:
+            if is_over.value == 1:
+                return
+            time.sleep(3)
+
+    with open(filepath, "rb") as f:
+        while True:
+            try:
+                d = pickle.load(f)
+                args_orig = d.get("system args")
+                T = d.get("Limit Cycle Period")
+                IC = d.get("Initial Conditions")
+
+                params = IC, T, *args_orig
+                filemane_to_dump_left=f'{Config.data_storage}/horizontal-line-{round(args_orig[1], 5)}-left.pickle'
+                filemane_to_dump_right=f'{Config.data_storage}/horizontal-line-{round(args_orig[1], 5)}-right.pickle'
+
+                args_down = params, Politics(h=1e-2,
+                                            inside_args_area=inside_args_area,
+                                            args_updater=alpha_updater_left,
+                                            h_limit=0.5 * 1e-2,
+                                            bar_title="horizontal-left",
+                                            Reverse=False,
+                                            color='okblue'), filemane_to_dump_left
+
+                args_up = params, Politics(h=1e-2,
+                                            inside_args_area=inside_args_area,
+                                            args_updater=alpha_updater_left,
+                                            h_limit=0.5 * 1e-2,
+                                            bar_title="horizontal-right",
+                                            Reverse=True,
+                                            color='okcyan'), filemane_to_dump_right
+
+                pool.apply_async(calcline, args=args_down)
+                pool.apply_async(calcline, args=args_up)
+
+            except EOFError:
+                if is_over.value == 1:
+                    return
+                time.sleep(3)
+
+def calcline_wrap(is_over, args):
+        try:
+            calcline(*args)
+        except BaseException as e:
+            print("Error was occured")
+            print(e)
+        finally:
+            is_over.value = 1
+
+def inside_args_area(N, M, Alpha, K):
+    return M > M_function(Alpha, K, N) and M < Config.Mass_end
+
+def mass_updater_down(N, M, Alpha, K, h, reverse=False):
+    if reverse:
+        M += h
+    else:
+        M -= h
+    return N, M, Alpha, K
+
+def alpha_updater_left(N, M, Alpha, K, h, reverse=False):
+    if reverse:
+        Alpha += h
+    else:
+        Alpha -= h
+    return N, M, Alpha, K
 
 def main():
-    H_M = Config.H_M
-    N, K, Alpha = Config.N, Config.K, Config.Alpha
-    Mass_end = Config.Mass_end
-    T0 = Config.T0
-    IC0 = Config.IC0
-    Mass = M(Alpha, K, N) + 2
-    print(f'Initial Mass is {Mass}')
+    params = Config.IC0, Config.T0, Config.N, \
+        M_function(Config.Alpha, Config.K, Config.N) + 1, Config.Alpha, Config.K
 
-    assert IC0[0] == 0 # Main Convention
+    filemane_to_dump_down=f"{Config.data_storage}/verticle-line-down.pickle"
+    filemane_to_dump_up=f"{Config.data_storage}/verticle-line-up.pickle"
 
-    IC, T = IC0, T0
-    iteration = 0
-    while Mass < Mass_end:
-        args_orig = (N, Mass, Alpha, K)
+    args_down = params, Politics(h=1e-1,
+                                inside_args_area=inside_args_area,
+                                args_updater=mass_updater_down,
+                                h_limit=0.5 * 1e-1,
+                                bar_title="down",
+                                Reverse=False,
+                                color='okgreen'), filemane_to_dump_down
 
-        print("System args")
-        print(args_orig)
+    args_up = params, Politics(h=1e-1,
+                                inside_args_area=inside_args_area,
+                                args_updater=mass_updater_down,
+                                h_limit=1e-3,
+                                bar_title="up",
+                                Reverse=True,
+                                color='okgreen'), filemane_to_dump_up
 
-        T, IC = limit_cycles.find_limit_cycle(R_SIDES.coupled_pendulums_rs, args_orig, IC, T,
-                phase_period=2*mt.pi,
-                eps=1e-5)
+    WORKERS_COUNT = cpu_count()
+    log(f"MAIN PROCESS CREATE POOL WITH {WORKERS_COUNT} workers", 'header')
 
-        print("Limit cycle initial condition")
-        print(IC)
-        print("Limit cycle time period")
-        print(T)
+    is_over_down, is_over_up = Value("i", 0), Value("i", 0)
 
-        with open(f'{Config.data_storage}/{iteration}.pickle', 'wb') as f:
-            pickle.dump(args_orig, f)
-            pickle.dump(T, f); pickle.dump(IC, f)
+    main_process_down = Process(target=calcline_wrap, args=(is_over_down, args_down))
+    main_process_up = Process(target=calcline_wrap, args=(is_over_up, args_up))
 
-        break
+    main_process_down.start()
+    main_process_up.start()
 
-        Mass += H_M
-        iteration += 1
+    with Pool(WORKERS_COUNT) as pool:
+        spawn_horizontal_lines(filemane_to_dump_down, is_over_down, pool)
+        spawn_horizontal_lines(filemane_to_dump_up, is_over_up, pool)
 
+        main_process_down.join()
+        main_process_up.join()
+        log(f"WAIT POOL", 'header')
+        pool.close(); pool.join()
+    log(f"DONE", 'header')
 
 if __name__ == "__main__":
     main()
-    pass
