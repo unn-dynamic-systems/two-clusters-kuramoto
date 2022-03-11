@@ -16,8 +16,7 @@ def spawn_horizontal_lines(filepath, is_over, pool):
             open(filepath).close()
             break
         except FileNotFoundError:
-            if is_over.value == 1:
-                return
+            if is_over.value == 1: return
             time.sleep(3)
 
     with open(filepath, "rb") as f:
@@ -52,8 +51,7 @@ def spawn_horizontal_lines(filepath, is_over, pool):
                 pool.apply_async(calcline, args=args_up)
 
             except EOFError:
-                if is_over.value == 1:
-                    return
+                if is_over.value == 1: return
                 time.sleep(3)
 
 def calcline_wrap(is_over, args):
@@ -122,9 +120,9 @@ def main():
 
         main_process_down.join()
         main_process_up.join()
-        log(f"WAIT POOL", 'header')
-        pool.close(); pool.join()
-    log(f"DONE", 'header')
+
+        log(f"WAIT POOL", 'header'); pool.close(); pool.join()
+        log(f"DONE", 'header')
 
 if __name__ == "__main__":
     main()
