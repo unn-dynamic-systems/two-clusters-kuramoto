@@ -38,7 +38,7 @@ class Politics:
             self.pbar.update(self.h)
 
         return True, args
-    
+
     def get_approx_total(self, args):
         total = 0
         while self.inside_args_area(*args):
