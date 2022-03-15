@@ -12,13 +12,16 @@ from rside import R_SIDES
 iteration = 0
 
 def main():
-    with open(f'{Config.data_storage}/{iteration}.pickle', 'rb') as f:
-        ARGS = pickle.load(f)
-        T = pickle.load(f); IC = pickle.load(f)
+    with open(f'./data/limit_cycle/horizontal-line-4.99034-right.pickle', 'rb') as f:
+        d = pickle.load(f)
+        ARGS = d.get("system args")
+        T = d.get("Limit Cycle Period")
+        IC = d.get("Initial Conditions")
 
-        h = 1e-3; t = np.arange(0, 2 * T, h)
+        h = 1e-3; t = np.arange(0, T, h)
         data = odeint(R_SIDES.coupled_pendulums_rs, IC, t, ARGS)
         sns.lineplot(x=t, y=data[:, 1],label='frequency')
+        # sns.lineplot(x=t, y=data[:, 0],label='phase')
         plt.savefig('example.png')
         print("OK")
 
