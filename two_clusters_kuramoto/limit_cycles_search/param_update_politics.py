@@ -3,9 +3,10 @@ from clog import log_str
 from tqdm import tqdm
 
 class Politics:
-    def __init__(self, h, inside_args_area, args_updater, h_limit=1e-3, bar_title="", Reverse=False, color='okblue'):
+    def __init__(self, h, inside_args_area, args_updater, h_limit=1e-3, bar_title="", Reverse=False, color='okblue', is_need_pgbar=False):
         self.bar_title = bar_title
         self.h = h
+        self.is_need_pgbar = is_need_pgbar
         self.h_limit = h_limit
         self.inside_args_area = inside_args_area
         self.args_updater = args_updater
@@ -24,7 +25,7 @@ class Politics:
             args = self.args_updater(*args, self.h, self.Reverse)
             return True, args
 
-        if not self.pbar:
+        if not self.pbar and self.is_need_pgbar:
             self.pbar = tqdm(total=self.get_approx_total(args))
 
 
@@ -32,9 +33,10 @@ class Politics:
         if not self.inside_args_area(*args):
             return False, ()
 
-        
-        self.pbar.set_description(log_str(f"{self.bar_title}, pid: {os.getpid()}", self.color))
-        self.pbar.update(self.h); print("")
+        if self.pbar:
+            self.pbar.set_description(log_str(f"{self.bar_title}, pid: {os.getpid()}", self.color))
+            self.pbar.update(self.h)
+
         return True, args
     
     def get_approx_total(self, args):
