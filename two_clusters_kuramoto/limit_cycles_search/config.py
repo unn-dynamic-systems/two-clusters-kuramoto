@@ -11,6 +11,6 @@ class Config:
     T0 = 80
     IC0 = np.array([0, 0.15])
     h_m = 0.3
-    h_m_limit = 1e-2
+    h_m_limit = 1e-1
     h_a = 1e-2
     h_a_limit = 1e-5
