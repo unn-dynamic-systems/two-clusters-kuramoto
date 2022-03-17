@@ -5,23 +5,29 @@ from clog import log
 from tqdm import tqdm
 from clog import log_str
 import os
+import sys
+from uuid import uuid4
 
-
-FOLDER = 'stability'
+FOLDER_TO_GET = sys.argv[1]
+FOLDER_TO_PUSH = f"stability-{str(uuid4()).split("-").pop()}"
 
 def main():
-    if not os.path.exists(f"{Config.data_storage}/{FOLDER}/"):
-        os.makedirs(f"{Config.data_storage}/{FOLDER}/")
-
+    if not os.path.exists(f"{Config.data_storage}/{FOLDER_TO_PUSH}"):
+        os.makedirs(f"{Config.data_storage}/{FOLDER_TO_PUSH}")
+    
+    if not os.path.exists(f"{FOLDER_TO_GET}"):
+        print(f"Not found {FOLDER_TO_GET}")
+        exit(1)
 
     WORKERS_COUNT = cpu_count()
     log(f"MAIN PROCESS CREATE POOL WITH {WORKERS_COUNT} workers", 'header')
+    log(f"data output {Config.data_storage}/{FOLDER_TO_PUSH}", 'okcyan')
 
-    files = os.listdir(f"{Config.data_storage}/limit_cycle")
+    files = os.listdir(f"{FOLDER_TO_GET}")
 
     with Pool(WORKERS_COUNT) as pool:
         tasks = [pool.apply_async(calcline_stability,
-                                  args=(f"./data/limit_cycle/{f}", f"./data/stability/{f}"),
+                                  args=(f"{FOLDER_TO_GET}/{f}", f"{Config.data_storage}/{FOLDER_TO_PUSH}/{f}"),
                                   error_callback=lambda e: print(e)) for f in files]
 
         pbar = tqdm(total=len(tasks))
