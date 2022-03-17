@@ -28,13 +28,12 @@ class Politics:
         if not self.pbar and self.is_need_pgbar:
             self.pbar = tqdm(total=self.get_approx_total(args))
 
-
         args = self.args_updater(*args, self.h, self.Reverse)
         if not self.inside_args_area(*args):
             return False, ()
 
         if self.pbar:
-            self.pbar.set_description(log_str(f"{self.bar_title}, pid: {os.getpid()}", self.color))
+            self.pbar.set_description(log_str(f"{self.bar_title}, h: {self.h}", self.color))
             self.pbar.update(self.h)
 
         return True, args
