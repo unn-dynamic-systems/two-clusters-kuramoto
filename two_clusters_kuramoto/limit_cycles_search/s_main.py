@@ -9,7 +9,7 @@ import sys
 from uuid import uuid4
 
 FOLDER_TO_GET = sys.argv[1]
-FOLDER_TO_PUSH = f"stability-{str(uuid4()).split("-").pop()}"
+FOLDER_TO_PUSH = f"stability-{str(uuid4()).split('-').pop()}"
 
 def main():
     if not os.path.exists(f"{Config.data_storage}/{FOLDER_TO_PUSH}"):
