@@ -9,8 +9,9 @@ import pickle
 from tqdm import tqdm
 from clog import log, log_str
 import os
+from uuid import uuid4
 
-FOLDER = 'limit_cycle2'
+FOLDER = f'limit-cycle-{str(uuid4()).split("-").pop()}'
 
 def spawn_horizontal_lines(filepath, is_file_writed_stopped, pool):
     tasks = []
@@ -35,18 +36,18 @@ def spawn_horizontal_lines(filepath, is_file_writed_stopped, pool):
                 filemane_to_dump_left=f'{Config.data_storage}/{FOLDER}/horizontal-line-{round(args_orig[1], 5)}-left.pickle'
                 filemane_to_dump_right=f'{Config.data_storage}/{FOLDER}/horizontal-line-{round(args_orig[1], 5)}-right.pickle'
 
-                args_down = params, Politics(h=1e-2,
+                args_down = params, Politics(h=Config.h_a,
                                             inside_args_area=inside_args_area,
                                             args_updater=alpha_updater_left,
-                                            h_limit=0.5 * 1e-2,
+                                            h_limit=Config.h_a_limit,
                                             bar_title="horizontal-left",
                                             Reverse=False,
                                             ), filemane_to_dump_left
 
-                args_up = params, Politics(h=1e-2,
+                args_up = params, Politics(h=Config.h_a,
                                             inside_args_area=inside_args_area,
                                             args_updater=alpha_updater_left,
-                                            h_limit=0.5 * 1e-2,
+                                            h_limit=Config.h_a_limit,
                                             bar_title="horizontal-right",
                                             Reverse=True,
                                             ), filemane_to_dump_right
@@ -87,8 +88,7 @@ def alpha_updater_left(N, M, Alpha, K, h, reverse=False):
 
 def main():
     params = Config.IC0, Config.T0, Config.N, \
-        M_function(Config.Alpha, Config.K, Config.N) + 1, Config.Alpha, Config.K
-
+        Config.Mass_start, Config.Alpha, Config.K
 
     if not os.path.exists(f"{Config.data_storage}/{FOLDER}"):
         os.makedirs(f"{Config.data_storage}/{FOLDER}")
@@ -96,20 +96,20 @@ def main():
     filemane_to_dump_down=f"{Config.data_storage}/{FOLDER}/verticle-line-down.pickle"
     filemane_to_dump_up=f"{Config.data_storage}/{FOLDER}/verticle-line-up.pickle"
 
-    args_down = params, Politics(h=1e-1,
+    args_down = params, Politics(h=Config.h_m,
                                 inside_args_area=inside_args_area,
                                 args_updater=mass_updater_down,
-                                h_limit=0.5 * 1e-1,
+                                h_limit=Config.h_m_limit,
                                 bar_title="down",
                                 Reverse=False,
                                 color='okcyan',
                                 is_need_pgbar=True,
                                 ), filemane_to_dump_down
 
-    args_up = params, Politics(h=1e-1,
+    args_up = params, Politics(h=Config.h_m,
                                 inside_args_area=inside_args_area,
                                 args_updater=mass_updater_down,
-                                h_limit=1e-3,
+                                h_limit=Config.h_m_limit,
                                 bar_title="up",
                                 Reverse=True,
                                 color='okblue',
