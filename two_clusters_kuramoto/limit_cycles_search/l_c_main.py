@@ -127,7 +127,7 @@ def main():
     WORKERS_COUNT = cpu_count()
     log(f"MAIN PROCESS CREATE POOL WITH {WORKERS_COUNT} WORKERS", 'header')
 
-    with Pool(WORKERS_COUNT) as pool:
+    with Pool(WORKERS_COUNT, maxtasksperchild=1) as pool:
 
         def spawn_tasks():
             tasks_down = spawn_horizontal_lines(filemane_to_dump_down, is_file_writed_stopped_down, pool)

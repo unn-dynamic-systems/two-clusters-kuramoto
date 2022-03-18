@@ -25,7 +25,7 @@ def main():
 
     files = os.listdir(f"{FOLDER_TO_GET}")
 
-    with Pool(WORKERS_COUNT) as pool:
+    with Pool(WORKERS_COUNT, maxtasksperchild=1) as pool:
         tasks = [pool.apply_async(calcline_stability,
                                   args=(f"{FOLDER_TO_GET}/{f}", f"{Config.data_storage}/{FOLDER_TO_PUSH}/{f}"),
                                   error_callback=lambda e: print(e)) for f in files]
