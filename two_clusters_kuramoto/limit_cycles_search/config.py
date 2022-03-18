@@ -4,7 +4,7 @@ import math as mt
 class Config:
     data_storage = './data'
     N = 5
-    K = 2
+    K = 1
     Alpha = mt.pi / 2
     Mass_start = 4.9
     Mass_end = 90
