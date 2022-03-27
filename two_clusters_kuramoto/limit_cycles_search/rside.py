@@ -2,6 +2,18 @@ from numba import njit
 import numpy as np
 
 class R_SIDES:
+
+    @staticmethod
+    @njit
+    def coupled_pendulums_full(q, _, N, Mass, Alpha, Omega):
+        X = np.empty(2 * N)
+        n = 0
+        while n < 2 * N: 
+            X[n] = q[n + 1]
+            X[n + 1] = 1 / Mass * (Omega + np.sum(np.sin(q[::2] - np.full(N, q[n]) - Alpha)) / N - q[n + 1])
+            n += 2
+        return X
+
     @staticmethod
     @njit
     def coupled_pendulums_rs(q, _, N, Mass, Alpha, K):
