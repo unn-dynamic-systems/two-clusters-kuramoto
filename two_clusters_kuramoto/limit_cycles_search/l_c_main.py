@@ -11,7 +11,7 @@ from clog import log, log_str
 import os
 from uuid import uuid4
 
-FOLDER = f'limit-cycle-{str(uuid4()).split("-").pop()}'
+FOLDER_TO_PUSH = f'limit-cycle-{str(uuid4()).split("-").pop()}'
 
 def spawn_horizontal_lines(filepath, is_file_writed_stopped, pool):
     tasks = []
@@ -33,8 +33,8 @@ def spawn_horizontal_lines(filepath, is_file_writed_stopped, pool):
                 IC = d.get("Initial Conditions")
 
                 params = IC, T, *args_orig
-                filemane_to_dump_left=f'{Config.data_storage}/{FOLDER}/horizontal-line-{round(args_orig[1], 5)}-left.pickle'
-                filemane_to_dump_right=f'{Config.data_storage}/{FOLDER}/horizontal-line-{round(args_orig[1], 5)}-right.pickle'
+                filemane_to_dump_left=f'{Config.data_storage}/{FOLDER_TO_PUSH}/horizontal-line-{round(args_orig[1], 5)}-left.pickle'
+                filemane_to_dump_right=f'{Config.data_storage}/{FOLDER_TO_PUSH}/horizontal-line-{round(args_orig[1], 5)}-right.pickle'
 
                 args_down = params, Politics(h=Config.h_a,
                                             inside_args_area=inside_args_area,
@@ -90,11 +90,11 @@ def main():
     params = Config.IC0, Config.T0, Config.N, \
         Config.Mass_start, Config.Alpha, Config.K
 
-    if not os.path.exists(f"{Config.data_storage}/{FOLDER}"):
-        os.makedirs(f"{Config.data_storage}/{FOLDER}")
+    if not os.path.exists(f"{Config.data_storage}/{FOLDER_TO_PUSH}"):
+        os.makedirs(f"{Config.data_storage}/{FOLDER_TO_PUSH}")
 
-    filemane_to_dump_down=f"{Config.data_storage}/{FOLDER}/verticle-line-down.pickle"
-    filemane_to_dump_up=f"{Config.data_storage}/{FOLDER}/verticle-line-up.pickle"
+    filemane_to_dump_down=f"{Config.data_storage}/{FOLDER_TO_PUSH}/verticle-line-down.pickle"
+    filemane_to_dump_up=f"{Config.data_storage}/{FOLDER_TO_PUSH}/verticle-line-up.pickle"
 
     args_down = params, Politics(h=Config.h_m,
                                 inside_args_area=inside_args_area,
@@ -126,6 +126,7 @@ def main():
 
     WORKERS_COUNT = cpu_count()
     log(f"MAIN PROCESS CREATE POOL WITH {WORKERS_COUNT} WORKERS", 'header')
+    log(f"data output {Config.data_storage}/{FOLDER_TO_PUSH}", 'okcyan')
 
     with Pool(WORKERS_COUNT, maxtasksperchild=1) as pool:
 
