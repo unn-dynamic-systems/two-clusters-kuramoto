@@ -38,12 +38,7 @@ def main():
                 plt.title(f'N={N}, K={K}')
                 eta_eig = d.get("eta_eig")
                 ksi_eig = d.get("ksi_eig")
-                print(Alpha, Mass)
-                print(IC, T)
-                print(eta_eig)
-                # print(ksi_eig)
-                # print(is_stable(eta_eig, ksi_eig))
-                plt.plot(Alpha, Mass, marker='o', markersize=3, color="b" if is_stable(eta_eig) else "r")
+                plt.plot(Alpha, Mass, marker='o', markersize=3, color="b" if is_stable(ksi_eig, eta_eig) else "r")
     
     plt.xlabel('alpha')
     plt.ylabel('mass')
