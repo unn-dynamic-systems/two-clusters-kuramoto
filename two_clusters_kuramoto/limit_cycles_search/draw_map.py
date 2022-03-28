@@ -2,6 +2,7 @@
 import matplotlib.pyplot as plt
 import os
 import sys
+import numpy as np
 from numpy.linalg import norm
 import pickle
 from existance_zones.existance_zones import M as M_function
@@ -17,10 +18,7 @@ def read_pickle(file):
 
 
 def is_stable(*p):
-    for p_i in p:
-        if norm(p_i) > 1:
-            return False
-    return True
+    return (np.absolute(p) < 1).all()
 
 def main():
     FOLDER_TO_GET = sys.argv[1]
