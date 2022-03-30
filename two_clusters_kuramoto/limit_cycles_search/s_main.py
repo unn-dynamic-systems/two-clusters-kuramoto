@@ -13,7 +13,10 @@ FOLDER_TO_PUSH = f"stability-{str(uuid4()).split('-').pop()}"
 
 def get_args():
     parser = argparse.ArgumentParser()
+
     parser.add_argument('--folder_for_data', type=str, help='folder for data', required=True)
+    parser.add_argument('--n_cpu', type=int, help='parallel workers', nargs='?', const=cpu_count(), default=cpu_count())
+
     args = parser.parse_args()
     return args
 
@@ -28,7 +31,7 @@ def main():
         print(f"Not found {FOLDER_TO_GET}")
         exit(1)
 
-    WORKERS_COUNT = cpu_count()
+    WORKERS_COUNT = ARGS.n_cpu
     log(f"MAIN PROCESS CREATE POOL WITH {WORKERS_COUNT} workers", 'header')
     log(f"data output {ARGS.folder_for_data}/{FOLDER_TO_PUSH}", 'okcyan')
 

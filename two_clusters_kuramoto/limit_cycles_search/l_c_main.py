@@ -104,6 +104,8 @@ def get_args():
     parser.add_argument('--h_alpha_divide_limit', type=float, help='Total number of elements', required=True)
 
     parser.add_argument('--folder_for_data', type=str, help='folder for data', required=True)
+
+    parser.add_argument('--n_cpu', type=int, help='parallel workers', nargs='?', const=cpu_count(), default=cpu_count())
     args = parser.parse_args()
 
     args.ic = np.fromstring(args.ic, sep=",")
@@ -149,7 +151,7 @@ def main():
 
     [p.start() for p in main_processes]
 
-    WORKERS_COUNT = cpu_count()
+    WORKERS_COUNT = ARGS.n_cpu
     log(f"MAIN PROCESS CREATE POOL WITH {WORKERS_COUNT} WORKERS", 'header')
     log(f"data output {ARGS.folder_for_data}/{FOLDER_TO_PUSH}", 'okcyan')
 
