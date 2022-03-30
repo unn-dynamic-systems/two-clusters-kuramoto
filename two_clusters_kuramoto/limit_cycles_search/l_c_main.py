@@ -5,7 +5,7 @@ import numpy as np
 from config import Config
 from existance_zones.existance_zones import M as M_function
 from param_update_politics import Politics
-from calc_line import calcline_limit_cycle
+from calc_line import calcline_limit_cycle, limit_cycle_find_check
 import pickle
 from tqdm import tqdm
 from clog import log, log_str
@@ -145,6 +145,13 @@ def main():
 
 
     is_file_writed_stopped_down, is_file_writed_stopped_up = Value("i", 0), Value("i", 0)
+
+    is_find_first_point = limit_cycle_find_check(params)
+    if not is_find_first_point:
+        log(f"We didn't find the first point", 'header')
+        exit(1)
+
+    log(f"We found the first point", 'header')
 
     main_processes = [Process(target=calcline_wrap, args=(is_file_writed_stopped_down, args_down)),
                       Process(target=calcline_wrap, args=(is_file_writed_stopped_up, args_up))]
