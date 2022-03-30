@@ -1,4 +1,4 @@
-from multiprocessing import Pool, cpu_count, Value, Process
+from multiprocessing import Pool, cpu_count
 from calc_line import calcline_stability
 import argparse
 from clog import log
