@@ -2,7 +2,6 @@ import time
 from multiprocessing import Pool, cpu_count, Value, Process
 import argparse
 import numpy as np
-from config import Config
 from existance_zones.existance_zones import M as M_function
 from param_update_politics import Politics
 from calc_line import calcline_limit_cycle, limit_cycle_find_check
@@ -39,7 +38,7 @@ def spawn_horizontal_lines(filepath, is_file_writed_stopped, pool):
                 filemane_to_dump_right=f'{ARGS.folder_for_data}/{FOLDER_TO_PUSH}/horizontal-line-{round(args_orig[1], 5)}-right.pickle'
 
                 args_down = params, Politics(h=ARGS.h_alpha,
-                                            inside_args_area=inside_args_area,
+                                            inside_args_area=create_inside_args_area(ARGS.mass_top_boarder),
                                             args_updater=alpha_updater_left,
                                             h_limit=ARGS.h_alpha_divide_limit,
                                             bar_title="horizontal-left",
@@ -47,7 +46,7 @@ def spawn_horizontal_lines(filepath, is_file_writed_stopped, pool):
                                             ), filemane_to_dump_left
 
                 args_up = params, Politics(h=ARGS.h_alpha,
-                                            inside_args_area=inside_args_area,
+                                            inside_args_area=create_inside_args_area(ARGS.mass_top_boarder),
                                             args_updater=alpha_updater_left,
                                             h_limit=ARGS.h_alpha_divide_limit,
                                             bar_title="horizontal-right",
@@ -71,8 +70,10 @@ def calcline_wrap(is_file_writed_stopped, args):
         finally:
             is_file_writed_stopped.value = 1
 
-def inside_args_area(N, M, Alpha, K):
-    return M > M_function(Alpha, K, N) and M < Config.Mass_end
+def create_inside_args_area(mass_top_boarder):
+    def wrap(N, M, Alpha, K):
+        return M > M_function(Alpha, K, N) and M < mass_top_boarder
+    return wrap
 
 def mass_updater_down(N, M, Alpha, K, h, reverse=False):
     if reverse:
@@ -124,7 +125,7 @@ def main():
     filemane_to_dump_up=f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}/verticle-line-up.pickle"
 
     args_down = params, Politics(h=ARGS.h_mass,
-                                inside_args_area=inside_args_area,
+                                inside_args_area=create_inside_args_area(ARGS.mass_top_boarder),
                                 args_updater=mass_updater_down,
                                 h_limit=ARGS.h_mass_divide_limit,
                                 bar_title="down",
@@ -134,7 +135,7 @@ def main():
                                 ), filemane_to_dump_down
 
     args_up = params, Politics(h=ARGS.h_mass,
-                                inside_args_area=inside_args_area,
+                                inside_args_area=create_inside_args_area(ARGS.mass_top_boarder),
                                 args_updater=mass_updater_down,
                                 h_limit=ARGS.h_mass_divide_limit,
                                 bar_title="up",
