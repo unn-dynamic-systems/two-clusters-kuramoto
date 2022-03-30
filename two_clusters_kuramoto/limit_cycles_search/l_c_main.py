@@ -11,7 +11,31 @@ from clog import log, log_str
 import os
 from uuid import uuid4
 
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-n', type=int, help='Total number of elements', required=True)
+    parser.add_argument('-k', type=int, help='Number of elements in small cluster', required=True)
+    parser.add_argument('-m', '--mass' ,type=float, help='Number of elements', required=True)
+    parser.add_argument('-a', '--alpha' ,type=float, help='Number of elements', required=True)
+    parser.add_argument('-i', '--ic',type=str, help='Initial conditions for limit cycle', required=True)
+    parser.add_argument('-t', type=str, help='Limit cycle period', required=True)
+
+    parser.add_argument('--mass_top_boarder' ,type=float, help='Top boarder', required=True)
+    parser.add_argument('--h_mass', type=float, help='Total number of elements', required=True)
+    parser.add_argument('--h_alpha', type=float, help='Total number of elements', required=True)
+    parser.add_argument('--h_mass_divide_limit', type=float, help='Total number of elements', required=True)
+    parser.add_argument('--h_alpha_divide_limit', type=float, help='Total number of elements', required=True)
+
+    parser.add_argument('--folder_for_data', type=str, help='folder for data', required=True)
+
+    parser.add_argument('--n_cpu', type=int, help='parallel workers', nargs='?', const=cpu_count(), default=cpu_count())
+    args = parser.parse_args()
+
+    args.ic = np.fromstring(args.ic, sep=",")
+    return args
+
 FOLDER_TO_PUSH = f'limit-cycle-{str(uuid4()).split("-").pop()}'
+MASS_TOP_BOARDER = get_args().mass_top_boarder
 
 def spawn_horizontal_lines(filepath, is_file_writed_stopped, pool):
     tasks = []
@@ -38,7 +62,7 @@ def spawn_horizontal_lines(filepath, is_file_writed_stopped, pool):
                 filemane_to_dump_right=f'{ARGS.folder_for_data}/{FOLDER_TO_PUSH}/horizontal-line-{round(args_orig[1], 5)}-right.pickle'
 
                 args_down = params, Politics(h=ARGS.h_alpha,
-                                            inside_args_area=create_inside_args_area(ARGS.mass_top_boarder),
+                                            inside_args_area=inside_args_area,
                                             args_updater=alpha_updater_left,
                                             h_limit=ARGS.h_alpha_divide_limit,
                                             bar_title="horizontal-left",
@@ -46,7 +70,7 @@ def spawn_horizontal_lines(filepath, is_file_writed_stopped, pool):
                                             ), filemane_to_dump_left
 
                 args_up = params, Politics(h=ARGS.h_alpha,
-                                            inside_args_area=create_inside_args_area(ARGS.mass_top_boarder),
+                                            inside_args_area=inside_args_area,
                                             args_updater=alpha_updater_left,
                                             h_limit=ARGS.h_alpha_divide_limit,
                                             bar_title="horizontal-right",
@@ -70,10 +94,8 @@ def calcline_wrap(is_file_writed_stopped, args):
         finally:
             is_file_writed_stopped.value = 1
 
-def create_inside_args_area(mass_top_boarder):
-    def wrap(N, M, Alpha, K):
-        return M > M_function(Alpha, K, N) and M < mass_top_boarder
-    return wrap
+def inside_args_area(N, M, Alpha, K):
+    return M > M_function(Alpha, K, N) and M < MASS_TOP_BOARDER
 
 def mass_updater_down(N, M, Alpha, K, h, reverse=False):
     if reverse:
@@ -125,7 +147,7 @@ def main():
     filemane_to_dump_up=f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}/verticle-line-up.pickle"
 
     args_down = params, Politics(h=ARGS.h_mass,
-                                inside_args_area=create_inside_args_area(ARGS.mass_top_boarder),
+                                inside_args_area=inside_args_area,
                                 args_updater=mass_updater_down,
                                 h_limit=ARGS.h_mass_divide_limit,
                                 bar_title="down",
@@ -135,7 +157,7 @@ def main():
                                 ), filemane_to_dump_down
 
     args_up = params, Politics(h=ARGS.h_mass,
-                                inside_args_area=create_inside_args_area(ARGS.mass_top_boarder),
+                                inside_args_area=inside_args_area,
                                 args_updater=mass_updater_down,
                                 h_limit=ARGS.h_mass_divide_limit,
                                 bar_title="up",
