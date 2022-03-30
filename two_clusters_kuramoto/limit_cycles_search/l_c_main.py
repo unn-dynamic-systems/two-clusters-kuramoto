@@ -1,6 +1,7 @@
 import time
 from multiprocessing import Pool, cpu_count, Value, Process
-
+import argparse
+import numpy as np
 from config import Config
 from existance_zones.existance_zones import M as M_function
 from param_update_politics import Politics
@@ -15,6 +16,7 @@ FOLDER_TO_PUSH = f'limit-cycle-{str(uuid4()).split("-").pop()}'
 
 def spawn_horizontal_lines(filepath, is_file_writed_stopped, pool):
     tasks = []
+    ARGS = get_args()
     while True:
         try:
             open(filepath).close()
@@ -33,21 +35,21 @@ def spawn_horizontal_lines(filepath, is_file_writed_stopped, pool):
                 IC = d.get("Initial Conditions")
 
                 params = IC, T, *args_orig
-                filemane_to_dump_left=f'{Config.data_storage}/{FOLDER_TO_PUSH}/horizontal-line-{round(args_orig[1], 5)}-left.pickle'
-                filemane_to_dump_right=f'{Config.data_storage}/{FOLDER_TO_PUSH}/horizontal-line-{round(args_orig[1], 5)}-right.pickle'
+                filemane_to_dump_left=f'{ARGS.folder_for_data}/{FOLDER_TO_PUSH}/horizontal-line-{round(args_orig[1], 5)}-left.pickle'
+                filemane_to_dump_right=f'{ARGS.folder_for_data}/{FOLDER_TO_PUSH}/horizontal-line-{round(args_orig[1], 5)}-right.pickle'
 
-                args_down = params, Politics(h=Config.h_a,
+                args_down = params, Politics(h=ARGS.h_alpha,
                                             inside_args_area=inside_args_area,
                                             args_updater=alpha_updater_left,
-                                            h_limit=Config.h_a_limit,
+                                            h_limit=ARGS.h_alpha_divide_limit,
                                             bar_title="horizontal-left",
                                             Reverse=False,
                                             ), filemane_to_dump_left
 
-                args_up = params, Politics(h=Config.h_a,
+                args_up = params, Politics(h=ARGS.h_alpha,
                                             inside_args_area=inside_args_area,
                                             args_updater=alpha_updater_left,
-                                            h_limit=Config.h_a_limit,
+                                            h_limit=ARGS.h_alpha_divide_limit,
                                             bar_title="horizontal-right",
                                             Reverse=True,
                                             ), filemane_to_dump_right
@@ -86,30 +88,53 @@ def alpha_updater_left(N, M, Alpha, K, h, reverse=False):
         Alpha -= h
     return N, M, Alpha, K
 
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-n', type=int, help='Total number of elements', required=True)
+    parser.add_argument('-k', type=int, help='Number of elements in small cluster', required=True)
+    parser.add_argument('-m', '--mass' ,type=float, help='Number of elements', required=True)
+    parser.add_argument('-a', '--alpha' ,type=float, help='Number of elements', required=True)
+    parser.add_argument('-i', '--ic',type=str, help='Initial conditions for limit cycle', required=True)
+    parser.add_argument('-t', type=str, help='Limit cycle period', required=True)
+
+    parser.add_argument('--mass_top_boarder' ,type=float, help='Top boarder', required=True)
+    parser.add_argument('--h_mass', type=float, help='Total number of elements', required=True)
+    parser.add_argument('--h_alpha', type=float, help='Total number of elements', required=True)
+    parser.add_argument('--h_mass_divide_limit', type=float, help='Total number of elements', required=True)
+    parser.add_argument('--h_alpha_divide_limit', type=float, help='Total number of elements', required=True)
+
+    parser.add_argument('--folder_for_data', type=str, help='folder for data', required=True)
+    args = parser.parse_args()
+
+    args.ic = np.fromstring(args.ic, sep=",")
+    return args
+
 def main():
-    params = Config.IC0, Config.T0, Config.N, \
-        Config.Mass_start, Config.Alpha, Config.K
+    ARGS = get_args()
+    log(f"ARGS {ARGS}", 'okcyan')
 
-    if not os.path.exists(f"{Config.data_storage}/{FOLDER_TO_PUSH}"):
-        os.makedirs(f"{Config.data_storage}/{FOLDER_TO_PUSH}")
+    params = ARGS.ic, ARGS.t, ARGS.n, ARGS.mass, ARGS.alpha, ARGS.k
 
-    filemane_to_dump_down=f"{Config.data_storage}/{FOLDER_TO_PUSH}/verticle-line-down.pickle"
-    filemane_to_dump_up=f"{Config.data_storage}/{FOLDER_TO_PUSH}/verticle-line-up.pickle"
+    if not os.path.exists(f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}"):
+        os.makedirs(f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}")
 
-    args_down = params, Politics(h=Config.h_m,
+    filemane_to_dump_down=f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}/verticle-line-down.pickle"
+    filemane_to_dump_up=f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}/verticle-line-up.pickle"
+
+    args_down = params, Politics(h=ARGS.h_mass,
                                 inside_args_area=inside_args_area,
                                 args_updater=mass_updater_down,
-                                h_limit=Config.h_m_limit,
+                                h_limit=ARGS.h_mass_divide_limit,
                                 bar_title="down",
                                 Reverse=False,
                                 color='okcyan',
                                 is_need_pgbar=True,
                                 ), filemane_to_dump_down
 
-    args_up = params, Politics(h=Config.h_m,
+    args_up = params, Politics(h=ARGS.h_mass,
                                 inside_args_area=inside_args_area,
                                 args_updater=mass_updater_down,
-                                h_limit=Config.h_m_limit,
+                                h_limit=ARGS.h_mass_divide_limit,
                                 bar_title="up",
                                 Reverse=True,
                                 color='okblue',
@@ -126,7 +151,7 @@ def main():
 
     WORKERS_COUNT = cpu_count()
     log(f"MAIN PROCESS CREATE POOL WITH {WORKERS_COUNT} WORKERS", 'header')
-    log(f"data output {Config.data_storage}/{FOLDER_TO_PUSH}", 'okcyan')
+    log(f"data output {ARGS.folder_for_data}/{FOLDER_TO_PUSH}", 'okcyan')
 
     with Pool(WORKERS_COUNT, maxtasksperchild=1) as pool:
 
