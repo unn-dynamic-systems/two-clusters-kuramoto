@@ -8,13 +8,11 @@ import os
 import sys
 from uuid import uuid4
 
-FOLDER_TO_GET = sys.argv[1]
-FOLDER_TO_PUSH = f"stability-{str(uuid4()).split('-').pop()}"
-
 def get_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--folder_for_data', type=str, help='folder for data', required=True)
+    parser.add_argument('--folder_for_data_with_limit_cycles', type=str, help='folder for data with limit cycles', required=True)
+    parser.add_argument('--folder_for_store_data', type=str, help='folder for data', required=True)
     parser.add_argument('--n_cpu', type=int, help='parallel workers', nargs='?', const=cpu_count(), default=cpu_count())
 
     args = parser.parse_args()
@@ -24,22 +22,25 @@ def main():
     ARGS = get_args()
     log(f"ARGS {ARGS}", 'okcyan')
 
-    if not os.path.exists(f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}"):
-        os.makedirs(f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}")
+    FOLDER_WITH_LIMIT_CYCLES = ARGS.folder_for_data_with_limit_cycles
+    FOLDER_TO_PUSH = f"stability-{str(uuid4()).split('-').pop()}"
+
+    if not os.path.exists(f"{ARGS.folder_for_store_data}/{FOLDER_TO_PUSH}"):
+        os.makedirs(f"{ARGS.folder_for_store_data}/{FOLDER_TO_PUSH}")
     
-    if not os.path.exists(f"{FOLDER_TO_GET}"):
-        print(f"Not found {FOLDER_TO_GET}")
+    if not os.path.exists(f"{FOLDER_WITH_LIMIT_CYCLES}"):
+        print(f"Not found {FOLDER_WITH_LIMIT_CYCLES}")
         exit(1)
 
     WORKERS_COUNT = ARGS.n_cpu
     log(f"MAIN PROCESS CREATE POOL WITH {WORKERS_COUNT} workers", 'header')
-    log(f"data output {ARGS.folder_for_data}/{FOLDER_TO_PUSH}", 'okcyan')
+    log(f"data output {ARGS.folder_for_store_data}/{FOLDER_TO_PUSH}", 'okcyan')
 
-    files = os.listdir(f"{FOLDER_TO_GET}")
+    files = os.listdir(f"{FOLDER_WITH_LIMIT_CYCLES}")
 
     with Pool(WORKERS_COUNT, maxtasksperchild=1) as pool:
         tasks = [pool.apply_async(calcline_stability,
-                                  args=(f"{FOLDER_TO_GET}/{f}", f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}/{f}"),
+                                  args=(f"{FOLDER_WITH_LIMIT_CYCLES}/{f}", f"{ARGS.folder_for_store_data}/{FOLDER_TO_PUSH}/{f}"),
                                   error_callback=lambda e: print(e)) for f in files]
 
         pbar = tqdm(total=len(tasks))
