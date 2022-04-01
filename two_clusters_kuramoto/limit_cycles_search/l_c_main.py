@@ -34,7 +34,7 @@ def get_args():
     args.ic = np.fromstring(args.ic, sep=",")
     return args
 
-FOLDER_TO_PUSH = f'limit-cycle-{str(uuid4()).split("-").pop()}'
+FOLDER_TO_PUSH = f'limit-cycle-N-{get_args().n}-K-{get_args().k}-{str(uuid4()).split("-").pop()}'
 MASS_TOP_BOARDER = get_args().mass_top_boarder
 
 def spawn_horizontal_lines(filepath, is_file_writed_stopped, pool):
