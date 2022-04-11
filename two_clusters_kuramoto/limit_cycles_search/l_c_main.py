@@ -140,9 +140,6 @@ def main():
 
     params = ARGS.ic, ARGS.t, ARGS.n, ARGS.mass, ARGS.alpha, ARGS.k
 
-    if not os.path.exists(f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}"):
-        os.makedirs(f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}")
-
     filemane_to_dump_down=f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}/verticle-line-down.pickle"
     filemane_to_dump_up=f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}/verticle-line-up.pickle"
 
@@ -175,6 +172,9 @@ def main():
         exit(1)
 
     log(f"We found the first point", 'header')
+
+    if not os.path.exists(f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}"):
+        os.makedirs(f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}")
 
     main_processes = [Process(target=calcline_wrap, args=(is_file_writed_stopped_down, args_down)),
                       Process(target=calcline_wrap, args=(is_file_writed_stopped_up, args_up))]
