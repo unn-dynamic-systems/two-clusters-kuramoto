@@ -5,7 +5,7 @@ import sys
 import numpy as np
 from numpy.linalg import norm
 import pickle
-from existance_zones.existance_zones import M as M_function
+from tqdm import tqdm
 
 def read_pickle(file):
     res = []
@@ -27,8 +27,9 @@ def main():
         exit(1)
 
     files = os.listdir(f"{FOLDER_TO_GET}")
-
+    bpar = tqdm(total=len(files))
     for f in files:
+        bpar.update(1)
         with open(f"{FOLDER_TO_GET}/{f}", 'rb') as file:
             data_file = read_pickle(file)
             for d in data_file:
@@ -38,11 +39,11 @@ def main():
                 plt.title(f'N={N}, K={K}')
                 eta_eig = d.get("eta_eig")
                 ksi_eig = d.get("ksi_eig")
-                plt.plot(Alpha, Mass, marker='o', markersize=3, color="b" if is_stable(ksi_eig, eta_eig) else "r")
+                plt.plot(Alpha, Mass, marker='o', markersize=1, color="b" if is_stable(ksi_eig, eta_eig) else "r")
     
     plt.xlabel('alpha')
     plt.ylabel('mass')
-    plt.plot()
-    plt.savefig("eexx.png")
+    plt.show()
+    # plt.savefig("eexx.png")
 if __name__ == "__main__":
     main()
