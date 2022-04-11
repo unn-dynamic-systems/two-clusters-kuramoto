@@ -1,5 +1,4 @@
 import numpy as np
-from config import Config
 import seaborn as sns
 import math as mt
 import matplotlib.pyplot as plt
@@ -12,18 +11,14 @@ from rside import R_SIDES
 iteration = 0
 
 def main():
-    with open(f'./data/limit_cycle/horizontal-line-4.99034-right.pickle', 'rb') as f:
-        d = pickle.load(f)
-        ARGS = d.get("system args")
-        T = d.get("Limit Cycle Period")
-        IC = d.get("Initial Conditions")
+    ARGS = 9, 10, 1.57, 4
+    T = 500
+    IC = np.array([0, 0.2])
 
-        h = 1e-3; t = np.arange(0, T, h)
-        data = odeint(R_SIDES.coupled_pendulums_rs, IC, t, ARGS)
-        sns.lineplot(x=t, y=data[:, 1],label='frequency')
-        # sns.lineplot(x=t, y=data[:, 0],label='phase')
-        plt.savefig('example.png')
-        print("OK")
-
+    h = 1e-3; t = np.arange(0, T, h)
+    data = odeint(R_SIDES.coupled_pendulums_rs, IC, t, ARGS)
+    sns.lineplot(x=t, y=data[:, 1],label=f'frequency')
+    print("OK")
+    plt.show()
 if __name__ == '__main__':
     main()
