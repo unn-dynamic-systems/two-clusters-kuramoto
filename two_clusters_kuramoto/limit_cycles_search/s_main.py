@@ -23,7 +23,7 @@ def main():
     log(f"ARGS {ARGS}", 'okcyan')
 
     FOLDER_WITH_LIMIT_CYCLES = ARGS.folder_for_data_with_limit_cycles
-    FOLDER_TO_PUSH = f"stability-{FOLDER_WITH_LIMIT_CYCLES}-{str(uuid4()).split('-').pop()}"
+    FOLDER_TO_PUSH = f"stability-{FOLDER_WITH_LIMIT_CYCLES.split('/').pop()}-{str(uuid4()).split('-').pop()}"
 
     if not os.path.exists(f"{ARGS.folder_for_store_data}/{FOLDER_TO_PUSH}"):
         os.makedirs(f"{ARGS.folder_for_store_data}/{FOLDER_TO_PUSH}")
