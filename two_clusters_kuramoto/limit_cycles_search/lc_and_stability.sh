@@ -11,7 +11,7 @@ poetry run python3 l_c_main.py -n $N -k $K --mass 4.9 -a 1.57 --ic '0, 0.5' -t 1
         --mass_top_boarder 85 --folder_for_data ./data \
         --n_cpu $N_CPU > N-$N-K-$K-limit_cycles.txt 2>&1
 
-STABILITY_FOLDER=$(ls data | grep limit-cycle-N-$N-K-$K | head -n 1)
+STABILITY_FOLDER=$(ls -t data | grep limit-cycle-N-$N-K-$K | head -n 1)
 
 echo "STEP 2 - STABILITY"
 echo $STABILITY_FOLDER
