@@ -3,11 +3,13 @@ import math as mt
 import pickle
 from numba import njit
 
+# Remove it if you are installed our module already
 import os; cwd = os.path.dirname(os.path.abspath(__file__))
-package_path = os.path.normpath(os.path.join(cwd, "..", "..", ".."))
+package_path = os.path.normpath(os.path.join(cwd, "..", "..", "..", "calculation"))
 import sys; sys.path.append(package_path)
 
-from calculation import optimizers
+# Every import of our library should looks like this
+from unn_ds import optimizers
 
 def main():
 

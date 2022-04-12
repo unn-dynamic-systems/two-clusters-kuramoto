@@ -5,11 +5,11 @@ from numpy.linalg import eig as get_eigenvalues
 
 # Remove it if you are installed our module already
 import os; cwd = os.path.dirname(os.path.abspath(__file__))
-package_path = os.path.normpath(os.path.join(cwd, "..", "..", ".."))
+package_path = os.path.normpath(os.path.join(cwd, "..", "..", "..", "calculation"))
 import sys; sys.path.append(package_path)
 
 # Every import of our library should looks like this
-from calculation import limit_cycles
+from unn_ds import limit_cycles
 
 
 def dump(data, filename):
