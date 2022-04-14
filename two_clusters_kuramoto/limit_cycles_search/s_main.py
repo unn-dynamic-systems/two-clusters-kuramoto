@@ -38,7 +38,7 @@ def main():
 
     files = os.listdir(f"{FOLDER_WITH_LIMIT_CYCLES}")
 
-    with Pool(WORKERS_COUNT, maxtasksperchild=1) as pool:
+    with Pool(WORKERS_COUNT) as pool:
         tasks = [pool.apply_async(calcline_stability,
                                   args=(f"{FOLDER_WITH_LIMIT_CYCLES}/{f}", f"{ARGS.folder_for_store_data}/{FOLDER_TO_PUSH}/{f}"),
                                   error_callback=lambda e: print(e)) for f in files]

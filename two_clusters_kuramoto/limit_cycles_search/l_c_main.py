@@ -185,7 +185,7 @@ def main():
     log(f"MAIN PROCESS CREATE POOL WITH {WORKERS_COUNT} WORKERS", 'header')
     log(f"data output {ARGS.folder_for_data}/{FOLDER_TO_PUSH}", 'okcyan')
 
-    with Pool(WORKERS_COUNT, maxtasksperchild=1) as pool:
+    with Pool(WORKERS_COUNT) as pool:
 
         def spawn_tasks():
             tasks_down = spawn_horizontal_lines(filemane_to_dump_down, is_file_writed_stopped_down, pool)
