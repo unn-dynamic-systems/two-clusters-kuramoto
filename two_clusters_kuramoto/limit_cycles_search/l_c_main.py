@@ -191,7 +191,7 @@ def main():
             tasks_down = spawn_horizontal_lines(filemane_to_dump_down, is_file_writed_stopped_down, pool)
             tasks_up = spawn_horizontal_lines(filemane_to_dump_up, is_file_writed_stopped_up, pool)
             [p.join() for p in main_processes]
-            log(f"MAIN PROCESSES DONE", 'header')
+            log(f"\nMAIN PROCESSES DONE", 'header')
             return tasks_down + tasks_up
 
         tasks = spawn_tasks()
