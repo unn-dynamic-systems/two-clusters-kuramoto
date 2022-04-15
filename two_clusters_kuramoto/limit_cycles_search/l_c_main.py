@@ -11,14 +11,14 @@ from clog import log, log_str
 import os
 from uuid import uuid4
 
+from find_initial_point import find_initial_point
+
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-n', type=int, help='Total number of elements', required=True)
     parser.add_argument('-k', type=int, help='Number of elements in small cluster', required=True)
     parser.add_argument('-m', '--mass' ,type=float, help='Number of elements', required=True)
     parser.add_argument('-a', '--alpha' ,type=float, help='Number of elements', required=True)
-    parser.add_argument('-i', '--ic',type=str, help='Initial conditions for limit cycle', required=True)
-    parser.add_argument('-t', type=str, help='Limit cycle period', required=True)
 
     parser.add_argument('--mass_top_boarder' ,type=float, help='Top boarder', required=True)
     parser.add_argument('--h_mass', type=float, help='Total number of elements', required=True)
@@ -31,7 +31,6 @@ def get_args():
     parser.add_argument('--n_cpu', type=int, help='parallel workers', nargs='?', const=cpu_count(), default=cpu_count())
     args = parser.parse_args()
 
-    args.ic = np.fromstring(args.ic, sep=",")
     return args
 
 FOLDER_TO_PUSH = f'limit-cycle-N-{get_args().n}-K-{get_args().k}-{str(uuid4()).split("-").pop()}'
@@ -111,34 +110,13 @@ def alpha_updater_left(N, M, Alpha, K, h, reverse=False):
         Alpha -= h
     return N, M, Alpha, K
 
-def get_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-n', type=int, help='Total number of elements', required=True)
-    parser.add_argument('-k', type=int, help='Number of elements in small cluster', required=True)
-    parser.add_argument('-m', '--mass' ,type=float, help='Number of elements', required=True)
-    parser.add_argument('-a', '--alpha' ,type=float, help='Number of elements', required=True)
-    parser.add_argument('-i', '--ic',type=str, help='Initial conditions for limit cycle', required=True)
-    parser.add_argument('-t', type=str, help='Limit cycle period', required=True)
-
-    parser.add_argument('--mass_top_boarder' ,type=float, help='Top boarder', required=True)
-    parser.add_argument('--h_mass', type=float, help='Total number of elements', required=True)
-    parser.add_argument('--h_alpha', type=float, help='Total number of elements', required=True)
-    parser.add_argument('--h_mass_divide_limit', type=float, help='Total number of elements', required=True)
-    parser.add_argument('--h_alpha_divide_limit', type=float, help='Total number of elements', required=True)
-
-    parser.add_argument('--folder_for_data', type=str, help='folder for data', required=True)
-
-    parser.add_argument('--n_cpu', type=int, help='parallel workers', nargs='?', const=cpu_count(), default=cpu_count())
-    args = parser.parse_args()
-
-    args.ic = np.fromstring(args.ic, sep=",")
-    return args
 
 def main():
     ARGS = get_args()
     log(f"ARGS {ARGS}", 'okcyan')
 
-    params = ARGS.ic, ARGS.t, ARGS.n, ARGS.mass, ARGS.alpha, ARGS.k
+    IC, T = find_initial_point(ARGS.n, ARGS.mass, ARGS.alpha, ARGS.k)
+    params = IC, T, ARGS.n, ARGS.mass, ARGS.alpha, ARGS.k
 
     filemane_to_dump_down=f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}/verticle-line-down.pickle"
     filemane_to_dump_up=f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}/verticle-line-up.pickle"
@@ -168,10 +146,10 @@ def main():
 
     is_find_first_point = limit_cycle_find_check(params)
     if not is_find_first_point:
-        log(f"We didn't find the first point", 'header')
+        log("WE DIDN'T FIND THE FIRST POINT", 'header')
         exit(1)
 
-    log(f"We found the first point", 'header')
+    log("WE FOUND THE FIRST POINT", 'header')
 
     if not os.path.exists(f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}"):
         os.makedirs(f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}")
