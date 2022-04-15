@@ -161,7 +161,7 @@ def main():
 
     WORKERS_COUNT = ARGS.n_cpu
     log(f"MAIN PROCESS CREATE POOL WITH {WORKERS_COUNT} WORKERS", 'header')
-    log(f"data output {ARGS.folder_for_data}/{FOLDER_TO_PUSH}", 'okcyan')
+    log(f"DATA OUTPUT {ARGS.folder_for_data}/{FOLDER_TO_PUSH}", 'okcyan')
 
     with Pool(WORKERS_COUNT) as pool:
 

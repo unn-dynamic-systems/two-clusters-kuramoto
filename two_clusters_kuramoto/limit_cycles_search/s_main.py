@@ -33,8 +33,8 @@ def main():
         exit(1)
 
     WORKERS_COUNT = ARGS.n_cpu
-    log(f"MAIN PROCESS CREATE POOL WITH {WORKERS_COUNT} workers", 'header')
-    log(f"data output {ARGS.folder_for_store_data}/{FOLDER_TO_PUSH}", 'okcyan')
+    log(f"MAIN PROCESS CREATE POOL WITH {WORKERS_COUNT} WORKERS", 'header')
+    log(f"DATA OUTPUT {ARGS.folder_for_store_data}/{FOLDER_TO_PUSH}", 'okcyan')
 
     files = os.listdir(f"{FOLDER_WITH_LIMIT_CYCLES}")
 
