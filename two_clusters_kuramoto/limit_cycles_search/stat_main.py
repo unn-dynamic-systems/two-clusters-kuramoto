@@ -48,7 +48,7 @@ def main():
     ARGS = get_args()
     log(f"ARGS {ARGS}", 'okcyan')
 
-    FOLDER_TO_PUSH = f"stats-{str(uuid4()).split('-').pop()}"
+    FOLDER_TO_PUSH = f"stats-N-{ARGS.n}-Omega-{ARGS.omega}{str(uuid4()).split('-').pop()}"
 
     if not os.path.exists(f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}"):
         os.makedirs(f"{ARGS.folder_for_data}/{FOLDER_TO_PUSH}")
