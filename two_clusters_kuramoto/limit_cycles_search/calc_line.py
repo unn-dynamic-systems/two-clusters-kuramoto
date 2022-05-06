@@ -15,9 +15,20 @@ from unn_ds import limit_cycles
 from unn_ds import integrators
 
 
-def dump(data, filename):
-    with open(f'{filename}', 'ab') as f:
-        pickle.dump(data, f)
+class DumpClass:
+    def __init__(self, batch_size=10):
+        self.batch_size=batch_size
+        self.batch = []
+
+    def __call__(self, data, filename):
+        self.batch.append(data)
+
+        if len(self.batch) == self.batch_size:
+            with open(f'{filename}', 'ab') as f:
+                [pickle.dump(d, f) for d in self.batch]
+                self.batch.clear()
+
+dump = DumpClass()
 
 def get_state_special(last_state):
     last_state = last_state.copy()
