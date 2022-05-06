@@ -20,13 +20,16 @@ class DumpClass:
         self.batch_size=batch_size
         self.batch = []
 
+    def flush(self, filename):
+        with open(f'{filename}', 'ab') as f:
+            [pickle.dump(d, f) for d in self.batch]
+            self.batch.clear()
+
     def __call__(self, data, filename):
         self.batch.append(data)
 
         if len(self.batch) == self.batch_size:
-            with open(f'{filename}', 'ab') as f:
-                [pickle.dump(d, f) for d in self.batch]
-                self.batch.clear()
+            self.flush(filename)
 
 def get_state_special(last_state):
     last_state = last_state.copy()
@@ -89,7 +92,9 @@ def calcline_stats(params, param_politics, filename_for_dump):
         dump(d, filename_for_dump)
 
         is_continue, system_args = param_politics.update(*system_args, fail=False)
-        if not is_continue: return
+        if not is_continue:
+            dump.flush(filename_for_dump)
+            return
 
 def limit_cycle_find_check(params):
     IC, T, *system_args = params
@@ -119,13 +124,17 @@ def calcline_limit_cycle(params, param_politics, filename_for_dump):
                 break
             except ArithmeticError:
                 is_continue, system_args = param_politics.update(*system_args, fail=True)
-                if not is_continue: return
+                if not is_continue:
+                    dump.flush(filename_for_dump)
+                    return
 
         d = {"system args": system_args, "Limit Cycle Period": T, "Initial Conditions": IC}
         dump(d, filename_for_dump)
 
         is_continue, system_args = param_politics.update(*system_args, fail=False)
-        if not is_continue: return
+        if not is_continue:
+            dump.flush(filename_for_dump)
+            return
 
 def calcline_stability(filename_for_get_data, filename_for_dump):
     dump = DumpClass()
@@ -156,4 +165,5 @@ def calcline_stability(filename_for_get_data, filename_for_dump):
                 dump(d, filename_for_dump)
 
             except EOFError:
+                dump.flush(filename_for_dump)
                 break
