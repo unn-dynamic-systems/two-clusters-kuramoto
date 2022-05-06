@@ -28,8 +28,6 @@ class DumpClass:
                 [pickle.dump(d, f) for d in self.batch]
                 self.batch.clear()
 
-dump = DumpClass()
-
 def get_state_special(last_state):
     last_state = last_state.copy()
     last_state[0] = 0
@@ -72,6 +70,7 @@ def get_state_special(last_state):
     return res
 
 def calcline_stats(params, param_politics, filename_for_dump):
+    dump = DumpClass()
     T_END, ITERATIONS, *system_args = params
     system_args = tuple(system_args)
     N, _, _, _ = system_args
@@ -106,6 +105,7 @@ def limit_cycle_find_check(params):
         return False
 
 def calcline_limit_cycle(params, param_politics, filename_for_dump):
+    dump = DumpClass()
     IC, T, *system_args = params
     system_args = tuple(system_args)
 
@@ -128,6 +128,7 @@ def calcline_limit_cycle(params, param_politics, filename_for_dump):
         if not is_continue: return
 
 def calcline_stability(filename_for_get_data, filename_for_dump):
+    dump = DumpClass()
     with open(filename_for_get_data, 'rb') as f:
         while True:
             try:
