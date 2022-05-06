@@ -109,7 +109,7 @@ def limit_cycle_find_check(params):
     except ArithmeticError:
         return False
 
-def calcline_limit_cycle(params, param_politics, filename_for_dump):
+def calcline_limit_cycle(params, param_politics, filename_for_dump, method='broyden1'):
     dump = DumpClass()
     IC, T, *system_args = params
     system_args = tuple(system_args)
@@ -119,7 +119,7 @@ def calcline_limit_cycle(params, param_politics, filename_for_dump):
             try:
                 T, IC = limit_cycles.find_limit_cycle(R_SIDES.coupled_pendulums_rs, system_args, IC, T,
                     phase_period=2 * mt.pi,
-                    method='broyden1',
+                    method=method,
                     eps=1e-7)
                 break
             except ArithmeticError:
