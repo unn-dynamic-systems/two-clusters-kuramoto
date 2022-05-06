@@ -129,7 +129,7 @@ def main():
                                 Reverse=False,
                                 color='okcyan',
                                 is_need_pgbar=True,
-                                ), filemane_to_dump_down, 'hybr'
+                                ), filemane_to_dump_down
 
     args_up = params, Politics(h=ARGS.h_mass,
                                 inside_args_area=inside_args_area,
@@ -139,7 +139,7 @@ def main():
                                 Reverse=True,
                                 color='okblue',
                                 is_need_pgbar=True
-                                ), filemane_to_dump_up, 'hybr'
+                                ), filemane_to_dump_up
 
 
     is_file_writed_stopped_down, is_file_writed_stopped_up = Value("i", 0), Value("i", 0)
