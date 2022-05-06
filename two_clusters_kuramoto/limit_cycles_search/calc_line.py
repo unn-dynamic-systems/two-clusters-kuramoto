@@ -109,7 +109,7 @@ def limit_cycle_find_check(params):
     except ArithmeticError:
         return False
 
-def calcline_limit_cycle(params, param_politics, filename_for_dump, method='broyden1'):
+def calcline_limit_cycle(params, param_politics, filename_for_dump, method='hybr'):
     dump = DumpClass()
     IC, T, *system_args = params
     system_args = tuple(system_args)
