@@ -97,14 +97,14 @@ def limit_cycle_find_check(params):
 def calcline_limit_cycle(params, param_politics, filename_for_dump):
     IC, T, *system_args = params
     system_args = tuple(system_args)
-    assert IC[0] == 0 # Main Convention
 
     while True:
         while True:
             try:
                 T, IC = limit_cycles.find_limit_cycle(R_SIDES.coupled_pendulums_rs, system_args, IC, T,
-                    phase_period=2*mt.pi,
-                    eps=1e-5)
+                    phase_period=2 * mt.pi,
+                    method='broyden1',
+                    eps=1e-7)
                 break
             except ArithmeticError:
                 is_continue, system_args = param_politics.update(*system_args, fail=True)
