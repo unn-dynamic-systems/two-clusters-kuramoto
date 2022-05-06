@@ -12,7 +12,6 @@ def find_initial_point(N, Mass, Alpha, K):
     [local_maxima_indexes] = argrelextrema(frequencies, np.greater)
     T = np.diff(t[local_maxima_indexes]).mean()
     IC = np.array([0, frequencies[local_maxima_indexes].mean()])
-    print(IC, T)
     return IC, T
 
 def main():
