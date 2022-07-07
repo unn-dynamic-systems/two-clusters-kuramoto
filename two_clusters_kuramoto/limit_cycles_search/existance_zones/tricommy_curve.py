@@ -9,7 +9,7 @@ package_path = os.path.normpath(os.path.join(cwd, "..", "..", "..", "calculation
 import sys; sys.path.append(package_path)
 
 # Every import of our library should looks like this
-from unn_ds import optimizers
+from rotary_states import optimizers
 
 def main():
 

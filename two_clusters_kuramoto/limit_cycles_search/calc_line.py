@@ -11,9 +11,7 @@ package_path = os.path.normpath(os.path.join(cwd, "..", "..", "..", "calculation
 import sys; sys.path.append(package_path)
 
 # Every import of our library should looks like this
-from unn_ds import limit_cycles
-from unn_ds import integrators
-
+from rotary_states import limit_cycles
 
 class DumpClass:
     def __init__(self, batch_size=10):
